@@ -109,100 +109,103 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   let isDragging = false;
   let dragPointer = null;
   let dragStartX = 0;
-  let dragStartY = 0;
-  let dragStartStep = 0;
-  let movedDuringDrag = false;
+  let progressAtDragStart = 0;
+  let dragProgress = 0;
   let isRevealed = false;
-  const pixelsPerStep = 56;
-  let suppressClickUntil = 0;
+  const pixelsPerStep = 64;
+  const totalDragDistance = pixelsPerStep * 5;
 
-  // Always show the photographic first frame as soon as it loads.
-  const firstFrame = new Image();
-  firstFrame.onload = () => {
+  // Activate the photographic interaction only after all five frames are ready.
+  // This prevents broken images or sudden frame jumps while dragging.
+  Promise.all(frameUrls.map(url => new Promise((resolve,reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Failed to load '+url));
+    image.src = url;
+  }))).then(() => {
     framesAvailable = true;
+    wrapFrame.src = frameUrls[0];
     finalSection.classList.add('has-frame-assets');
-    unwrapButton.setAttribute('aria-label', 'Откройте упаковку: потяните за угол в любом направлении или нажмите пять раз');
-  };
-  firstFrame.src = frameUrls[0];
-
-  // Preload subsequent states, so dragging changes the frame without flicker.
-  frameUrls.slice(1).forEach(url => {
-    const frame = new Image();
-    frame.src = url;
+  }).catch(error => {
+    console.error('Gift reveal frames unavailable:',error);
+    // The existing visual remains available; no random click-to-open behavior.
   });
 
   function showStep(step) {
-    const n = Math.max(0, Math.min(4, step));
-    if (currentStep === n) return;
-    currentStep = n;
-    wrapFrame.src = frameUrls[n];
+    const next = Math.max(0, Math.min(4,step));
+    if (next === currentStep) return;
+    currentStep = next;
+    wrapFrame.src = frameUrls[next];
   }
 
   function revealGift() {
     if (isRevealed) return;
     isRevealed = true;
     isDragging = false;
+    unwrapButton.classList.remove('is-dragging');
     surpriseContent.removeAttribute('inert');
-    surpriseContent.setAttribute('aria-hidden', 'false');
-    unwrapButton.setAttribute('aria-expanded', 'true');
+    surpriseContent.setAttribute('aria-hidden','false');
+    unwrapButton.setAttribute('aria-expanded','true');
     finalSection.classList.add('is-revealed');
-    unwrapButton.blur();
     startSilverConfetti();
   }
 
-  function advanceOneStep() {
-    if (isRevealed) return;
-    if (!framesAvailable) {
+  // Each 64px of travel to the LEFT reveals one more stage. Movement
+  // right/up/down and individual mouse clicks cannot change the frame.
+  // Progress is retained when the pointer is released, so users can pull again.
+  function updateDrag(event) {
+    if (!framesAvailable || isRevealed || !isDragging || event.pointerId !== dragPointer) return;
+    const pulledLeft = Math.max(0, dragStartX - event.clientX);
+    const distance = Math.min(totalDragDistance, progressAtDragStart + pulledLeft);
+    dragProgress = Math.max(dragProgress,distance);
+    if (dragProgress >= totalDragDistance) {
       revealGift();
-    } else if (currentStep >= 4) {
-      revealGift();
-    } else {
-      showStep(currentStep + 1);
+      return;
     }
+    showStep(Math.floor(dragProgress/pixelsPerStep));
+    event.preventDefault();
   }
 
-  unwrapButton.addEventListener('pointerdown', event => {
-    if (isRevealed) return;
+  unwrapButton.addEventListener('pointerdown',event => {
+    if (!framesAvailable || isRevealed) return;
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     isDragging = true;
     dragPointer = event.pointerId;
     dragStartX = event.clientX;
-    dragStartY = event.clientY;
-    dragStartStep = currentStep;
-    movedDuringDrag = false;
-    // Window-level tracking works even when the pointer leaves the tag.
+    progressAtDragStart = dragProgress;
+    unwrapButton.classList.add('is-dragging');
+    // Capture survives moving outside the corner hotspot during the pull.
+    try { unwrapButton.setPointerCapture(event.pointerId); } catch (_) {}
     event.preventDefault();
   });
 
-  window.addEventListener('pointermove', event => {
-    if (!isDragging || isRevealed || event.pointerId !== dragPointer) return;
-    const distance = Math.hypot(event.clientX - dragStartX, event.clientY - dragStartY);
-    if (distance < 8) return;
-    movedDuringDrag = true;
-    const next = dragStartStep + Math.floor(distance / pixelsPerStep);
-    if (next >= 5) {
-      suppressClickUntil = performance.now() + 450;
-      revealGift();
-    } else {
-      showStep(next);
-    }
-    event.preventDefault();
-  }, { passive: false });
+  unwrapButton.addEventListener('pointermove',updateDrag);
+  window.addEventListener('pointermove',event => {
+    // Fallback for browsers that lose capture during a long drag.
+    if (event.target !== unwrapButton) updateDrag(event);
+  },{passive:false});
 
-  function endDrag(event) {
-    if (!isDragging || event.pointerId !== dragPointer) return;
+  function stopDrag(event) {
+    if (!isDragging || (event && event.pointerId !== dragPointer)) return;
     isDragging = false;
     dragPointer = null;
-    if (movedDuringDrag) suppressClickUntil = performance.now() + 450;
+    unwrapButton.classList.remove('is-dragging');
   }
-  window.addEventListener('pointerup', endDrag);
-  window.addEventListener('pointercancel', endDrag);
-  window.addEventListener('blur', () => { isDragging = false; dragPointer = null; });
+  unwrapButton.addEventListener('pointerup',stopDrag);
+  unwrapButton.addEventListener('pointercancel',stopDrag);
+  unwrapButton.addEventListener('lostpointercapture',() => stopDrag());
+  window.addEventListener('pointerup',stopDrag);
+  window.addEventListener('blur',() => stopDrag());
 
-  // Clicks also advance one frame. This is useful with a trackpad and for accessibility.
-  unwrapButton.addEventListener('click', () => {
-    if (isRevealed || performance.now() < suppressClickUntil) return;
-    advanceOneStep();
+  // No mouse click progression. Keyboard users can advance with Left / Enter / Space.
+  unwrapButton.addEventListener('click',event => event.preventDefault());
+  unwrapButton.addEventListener('keydown',event => {
+    if (isRevealed || !framesAvailable) return;
+    if (!['ArrowLeft','Enter',' '].includes(event.key)) return;
+    event.preventDefault();
+    dragProgress = Math.min(totalDragDistance,dragProgress+pixelsPerStep);
+    if (dragProgress >= totalDragDistance) revealGift();
+    else showStep(Math.floor(dragProgress/pixelsPerStep));
   });
 
   function startSilverConfetti() {
