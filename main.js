@@ -281,3 +281,22 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
     requestAnimationFrame(render);
   }
 }
+
+
+// Scale the entire 1920px desktop composition uniformly on narrower desktops.
+// CSS zoom scales both visual dimensions and the document's scroll height.
+// Below 768px, the independent mobile layout takes over.
+(function setupDesktopCanvasScaling(){
+  const canvas = document.querySelector('.canvas');
+  if (!canvas) return;
+  function applyDesktopScale(){
+    const viewportWidth = document.documentElement.clientWidth;
+    if (viewportWidth >= 768 && viewportWidth < 1920){
+      canvas.style.zoom = String(viewportWidth / 1920);
+    } else {
+      canvas.style.zoom = '';
+    }
+  }
+  applyDesktopScale();
+  window.addEventListener('resize', applyDesktopScale, {passive:true});
+})();
