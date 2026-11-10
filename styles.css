@@ -307,3 +307,9 @@ button{font:inherit;cursor:pointer}
   .hero__headline-first{position:relative;left:clamp(110px,34vw,155px);font-size:.89em}
   .hero__headline-second{position:relative;left:0}
 }
+
+/* Desktop canvas: fixed 1920px design, scale uniformly only below that width. */
+@media (min-width:768px) and (max-width:1919px){
+  html,body{min-width:0;width:100%;overflow-x:hidden}
+  .canvas{margin-left:auto;margin-right:auto}
+}
