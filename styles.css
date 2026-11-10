@@ -8,7 +8,7 @@
 html{background:var(--bg);scroll-behavior:smooth;min-width:1920px}
 body{margin:0;min-width:1920px;background:var(--bg);color:var(--ink);font-family:'Formular','Arial',sans-serif;font-size:23px;font-weight:400;line-height:1.2;-webkit-font-smoothing:antialiased}
 button{font:inherit;cursor:pointer}
-.canvas{width:1920px;height:11900px;position:relative;margin:0 auto;background:var(--bg);overflow:hidden;isolation:isolate}
+.canvas{width:1920px;height:10145px;position:relative;margin:0 auto;background:var(--bg);overflow:hidden;isolation:isolate}
 .script{font-family:'TT Qurdisma Trial','TT_Qurdisma_Trial','Brush Script MT',cursive;font-weight:400;letter-spacing:-.02em;white-space:nowrap}
 .asset{display:block;object-fit:cover}
 .hero,.greeting,.guide,.prophecies,.final{position:absolute;left:0;width:1920px}
@@ -37,7 +37,7 @@ button{font:inherit;cursor:pointer}
 .step--4 .step__picture{width:196px;height:196px;top:87px}
 .step__text{position:absolute;top:311px;left:0;width:362px;min-height:178px;margin:0;border:1.5px solid var(--ink);padding:30px 30px 24px;font-size:23px;line-height:1.2;letter-spacing:-.03em;text-align:justify}
 .step--3 .step__text{min-height:264px}.step--4 .step__text{min-height:286px}
-.prophecies{top:0;height:10540px}
+.prophecies{top:0;height:8785px}
 .prophecies__headline{position:absolute;top:3294px;left:64px;margin:0;font-size:220px;line-height:.85;letter-spacing:-4.4px;font-weight:400}
 .prophecies__headline span{display:inline-block;margin-left:300px}
 .prophecies__headline span:last-child{margin-left:425px}
@@ -50,9 +50,7 @@ button{font:inherit;cursor:pointer}
 .prediction__trigger:hover .prediction__image,.prediction__trigger:focus-visible .prediction__image{transform:scale(1.035)}
 .prediction__trigger:hover .prediction__hint,.prediction__trigger:focus-visible .prediction__hint{opacity:1;transform:none}
 .prediction__trigger:focus-visible{outline:4px solid var(--ink);outline-offset:5px}
-.prediction__title{margin:56px 0 48px;font-size:42px;line-height:1.2;letter-spacing:1.68px;text-transform:uppercase;font-weight:400}
-.prediction__copy{width:560px;max-width:100%;font-size:23px;line-height:1.22;letter-spacing:-.03em;margin:0;color:var(--muted)}
-.final{top:10540px;height:1360px}
+.final{top:8785px;height:1360px}
 .final__headline{position:absolute;top:32px;left:46px;margin:0;font-size:220px;line-height:.85;letter-spacing:-4.4px;font-weight:400}
 .final__headline span{display:inline-block;margin-left:560px}
 .final__photo{position:absolute;top:417px;left:53px;width:1810px;height:644px;border-radius:20px;object-fit:cover}
