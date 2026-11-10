@@ -112,7 +112,7 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   let progressAtDragStart = 0;
   let dragProgress = 0;
   let isRevealed = false;
-  const pixelsPerStep = 64;
+  const pixelsPerStep = 145;
   const totalDragDistance = pixelsPerStep * 5;
 
   // Activate the photographic interaction only after all five frames are ready.
@@ -150,7 +150,7 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
     startSilverConfetti();
   }
 
-  // Each 64px of travel to the LEFT reveals one more stage. Movement
+  // Each 145px of travel to the LEFT reveals one more stage. Movement
   // right/up/down and individual mouse clicks cannot change the frame.
   // Progress is retained when the pointer is released, so users can pull again.
   function updateDrag(event) {
@@ -208,44 +208,64 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
     else showStep(Math.floor(dragProgress/pixelsPerStep));
   });
 
+
   function startSilverConfetti() {
     if (!confettiCanvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const context = confettiCanvas.getContext('2d');
     if (!context) return;
-    const width = 1920, height = 1360;
-    const ratio = Math.min(window.devicePixelRatio || 1,2);
-    confettiCanvas.width = width*ratio;
-    confettiCanvas.height = height*ratio;
-    context.setTransform(ratio,0,0,ratio,0,0);
-    const particles = Array.from({length:39},() => ({
-      x:Math.random()*width,
-      y:Math.random()*height-height,
-      w:1.5+Math.random()*3.5,
-      h:1+Math.random()*2.6,
-      vy:0.38+Math.random()*0.85,
-      vx:-.22+Math.random()*.44,
-      phase:Math.random()*Math.PI*2,
-      light:.25+Math.random()*.45
+    const width = 1920;
+    const height = 1360;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    confettiCanvas.width = width * ratio;
+    confettiCanvas.height = height * ratio;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    // Start within the visible gift area rather than above the canvas;
+    // the original particles took too long to enter the viewport.
+    const particles = Array.from({ length: 58 }, () => ({
+      x: 55 + Math.random() * 1810,
+      y: 270 + Math.random() * 700,
+      w: 1.5 + Math.random() * 3.5,
+      h: 1.5 + Math.random() * 4,
+      vy: .26 + Math.random() * .62,
+      sway: .17 + Math.random() * .46,
+      phase: Math.random() * Math.PI * 2,
+      alpha: .36 + Math.random() * .40,
+      rotation: Math.random() * Math.PI,
+      turn: .008 + Math.random() * .018
     }));
-    const started=performance.now();
-    let previous=started;
+
+    const started = performance.now();
+    let previous = started;
     function render(now) {
-      const elapsed=now-started;
-      const dt=Math.min((now-previous)/16.67,2.5);
-      previous=now;
-      context.clearRect(0,0,width,height);
+      const elapsed = now - started;
+      const dt = Math.min((now - previous) / 16.67, 2.5);
+      previous = now;
+      context.clearRect(0, 0, width, height);
+      const fade = Math.min(1, elapsed / 800) * Math.min(1, (26000 - elapsed) / 2300);
       for (const p of particles) {
-        p.y+=p.vy*dt;
-        p.x+=p.vx*dt + Math.sin(now/1500+p.phase)*.15;
-        if(p.y>height+10) {p.y=-10;p.x=Math.random()*width;}
-        const glow=.35+.65*Math.abs(Math.sin(now/720+p.phase));
-        context.globalAlpha=p.light*glow*Math.min(1,(18000-elapsed)/1600);
-        context.fillStyle=glow>.68?'#f7f8fb':'#bfc3ca';
-        context.fillRect(p.x,p.y,p.w,p.h);
+        p.y += p.vy * dt;
+        p.phase += p.turn * dt;
+        p.x += Math.sin(p.phase) * p.sway * dt;
+        if (p.y > height - 118) {
+          p.y = 360 - Math.random() * 130;
+          p.x = 55 + Math.random() * 1810;
+        }
+        const shimmer = .48 + .52 * Math.abs(Math.sin(p.phase * 2.4));
+        context.save();
+        context.translate(p.x, p.y);
+        context.rotate(p.rotation + Math.sin(p.phase) * .6);
+        context.globalAlpha = p.alpha * shimmer * Math.max(0, fade);
+        context.fillStyle = shimmer > .76 ? '#ffffff' : '#b9bec8';
+        context.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        // Occasional miniature light reflections rather than large starbursts.
+        if (shimmer > .91 && p.w > 3.6) {
+          context.fillRect(-.4, -p.h * 1.45, .8, p.h * 2.9);
+        }
+        context.restore();
       }
-      context.globalAlpha=1;
-      if(elapsed<18000) requestAnimationFrame(render);
-      else context.clearRect(0,0,width,height);
+      if (elapsed < 26000) requestAnimationFrame(render);
+      else context.clearRect(0, 0, width, height);
     }
     requestAnimationFrame(render);
   }
