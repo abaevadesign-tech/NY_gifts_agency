@@ -112,7 +112,7 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   let progressAtDragStart = 0;
   let dragProgress = 0;
   let isRevealed = false;
-  const pixelsPerStep = 145;
+  const pixelsPerStep = window.matchMedia('(max-width: 767px)').matches ? 46 : 145;
   const totalDragDistance = pixelsPerStep * 5;
 
   // Activate the photographic interaction only after all five frames are ready.
