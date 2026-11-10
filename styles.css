@@ -300,3 +300,10 @@ button{font:inherit;cursor:pointer}
   .prophecies__headline,.final__headline{overflow-wrap:anywhere}
   .prediction-grid{max-width:100%}
 }
+
+/* Keep desktop heading intact; shift only “добро” to the right of the model on mobile. */
+@media (max-width:767px){
+  .hero__headline-first,.hero__headline-second{display:block;width:max-content;max-width:none;overflow-wrap:normal}
+  .hero__headline-first{position:relative;left:clamp(110px,34vw,155px);font-size:.89em}
+  .hero__headline-second{position:relative;left:0}
+}
