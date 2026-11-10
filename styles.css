@@ -278,3 +278,13 @@ button{font:inherit;cursor:pointer}
   .final__wrap{left:30px;width:calc(100% - 60px)}
   .final .footer{left:-30px;width:calc(100% + 60px)}
 }
+
+/* Mobile final: wrapping takes its own space, avoiding overlap at every viewport width. */
+@media (max-width:767px){
+  .final__headline{order:0}
+  .final__wrap{position:relative;left:auto;right:auto;top:auto;bottom:auto;order:1;width:100%;height:auto;margin:0;aspect-ratio:1810/805;flex:none}
+  .final__surprise-content{order:2;display:none;opacity:0;visibility:hidden}
+  .final.is-revealed .final__wrap{display:none}
+  .final.is-revealed .final__surprise-content{display:flex;opacity:1;visibility:visible}
+  .final .footer{order:3}
+}
