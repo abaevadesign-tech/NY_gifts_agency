@@ -197,3 +197,6 @@ button{font:inherit;cursor:pointer}
 .final.has-frame-assets .final__unwrap:focus-visible{outline:3px solid rgba(255,255,255,.85);outline-offset:-8px}
 .final .footer{visibility:visible;opacity:1;z-index:10}
 .final__confetti{z-index:9}
+
+/* Silver snowfall persists over the viewport, including while scrolling. */
+.site-confetti{position:fixed;inset:0;width:100vw;height:100vh;z-index:80;pointer-events:none;display:block;user-select:none}
