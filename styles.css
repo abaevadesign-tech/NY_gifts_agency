@@ -304,7 +304,7 @@ button{font:inherit;cursor:pointer}
 /* Keep desktop heading intact; shift only “добро” to the right of the model on mobile. */
 @media (max-width:767px){
   .hero__headline-first,.hero__headline-second{display:block;width:max-content;max-width:none;overflow-wrap:normal}
-  .hero__headline-first{position:relative;left:clamp(155px,46vw,205px);font-size:.89em}
+  .hero__headline-first{position:relative;left:auto;right:0;margin-left:auto;font-size:.89em}
   .hero__headline-second{position:relative;left:0}
 }
 
@@ -320,4 +320,11 @@ button{font:inherit;cursor:pointer}
   background-position:center center;
   background-repeat:no-repeat;
   background-size:100% 100%;
+}
+
+/* Mobile hero: align first word to the right and second word to the left. */
+@media (max-width:767px){
+  .hero__headline{left:5%;right:5%;width:90%;max-width:none}
+  .hero__headline-first{position:relative;left:auto;right:0;margin-left:auto;margin-right:0;text-align:right;max-width:100%;}
+  .hero__headline-second{position:relative;left:0;right:auto;margin-left:0;margin-right:auto;text-align:left;max-width:100%;}
 }
