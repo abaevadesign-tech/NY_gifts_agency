@@ -46,6 +46,7 @@ function openPrediction(index, clickedButton) {
   const item = predictions[index];
   dialogTitle.textContent = item.title;
   dialogBody.textContent = item.text;
+  fixRussianLineBreaks(dialogBody);
   dialogImage.src = `./assets/${item.image}`;
   dialogImage.alt = `Символ «${item.title}»`;
   dialog.setAttribute('aria-hidden', 'false');
@@ -300,3 +301,40 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   applyDesktopScale();
   window.addEventListener('resize', applyDesktopScale, {passive:true});
 })();
+
+
+/*
+ * Russian typography: keep short function words attached to the next word.
+ * NBSP survives all responsive widths; unlike manual line breaks it does
+ * not force a particular line layout.
+ */
+const russianNonBreakingWords = new Set([
+  'а','без','в','во','да','для','до','за','и','из','изо','или',
+  'к','ко','на','над','не','ни','но','о','об','обо','от','ото',
+  'по','под','при','про','с','со','у','через','между','перед',
+  'после','безо','оттого','ли','же','бы','б','ведь'
+]);
+
+function fixRussianLineBreaks(root) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent || parent.closest('script,style,svg,textarea,code,pre,[contenteditable="true"]')) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    node.nodeValue = node.nodeValue.replace(/(^|[\\s\\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \\t]+)(?=[А-Яа-яЁё0-9«„])/gu,
+      (match, prefix, word) => russianNonBreakingWords.has(word.toLowerCase())
+        ? prefix + word + '\u00a0'
+        : match
+    );
+  }
+}
+
+fixRussianLineBreaks(document.body);
