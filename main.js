@@ -329,7 +329,7 @@ function fixRussianLineBreaks(root) {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   for (const node of nodes) {
-    node.nodeValue = node.nodeValue.replace(/(^|[\\s\\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \\t]+)(?=[А-Яа-яЁё0-9«„])/gu,
+    node.nodeValue = node.nodeValue.replace(/(^|[\s\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \t]+)(?=[А-Яа-яЁё0-9«„])/gu,
       (match, prefix, word) => russianNonBreakingWords.has(word.toLowerCase())
         ? prefix + word + '\u00a0'
         : match
