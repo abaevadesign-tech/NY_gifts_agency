@@ -131,3 +131,54 @@ button{font:inherit;cursor:pointer}
 .final.has-frame-assets.is-revealed .final__right{opacity:1;visibility:visible;transition:opacity .7s ease}
 .final.has-frame-assets.is-revealed .final__wrap{visibility:hidden;transition:visibility 0s linear .18s}
 .final__confetti{position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none}
+
+
+/* Only the peelable bottom-right corner is interactive. Drag left to unwrap. */
+.final.has-frame-assets .final__unwrap{
+  inset:auto 0 0 auto;
+  right:0;
+  bottom:0;
+  width:430px;
+  height:335px;
+  display:block;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+  z-index:7;
+}
+.final.has-frame-assets .final__unwrap:active{cursor:grabbing}
+.final.has-frame-assets .final__unwrap:focus-visible{outline:4px solid #f9f8f4;outline-offset:-10px}
+.final__drag-guide{display:none}
+.final.has-frame-assets .final__drag-guide{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  bottom:24px;
+  right:23px;
+  border-radius:100px;
+  padding:13px 19px;
+  font-family:'Formular',Arial,sans-serif;
+  font-size:17px;
+  font-weight:500;
+  line-height:1.15;
+  color:#262626;
+  background:rgba(250,248,244,.94);
+  box-shadow:0 3px 24px rgba(35,30,32,.2);
+  pointer-events:none;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.final__drag-guide-arrow{font-size:28px;line-height:1;display:inline-block}
+.final.has-frame-assets .final__unwrap:hover .final__drag-guide,
+.final.has-frame-assets .final__unwrap:focus-visible .final__drag-guide{
+  transform:translateX(-7px);
+  box-shadow:0 6px 28px rgba(35,30,32,.29);
+}
+.final.has-frame-assets .final__unwrap.is-dragging .final__drag-guide{
+  opacity:.6;
+  transform:translateX(-12px);
+}
+.final.has-frame-assets.is-revealed .final__drag-guide{display:none}
