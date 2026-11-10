@@ -103,7 +103,7 @@ const wrapFrame = document.getElementById('final-wrap-frame');
 const confettiCanvas = document.getElementById('final-confetti');
 
 if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
-  const frameUrls = Array.from({length:5},(_,i)=>`./assets/final-wrap/wrap-${i}.webp`);
+  const frameUrls = Array.from({length:4},(_,i)=>`./assets/final-wrap/wrap-${i}.webp`);
   let framesAvailable = false;
   let currentStep = 0;
   let isDragging = false;
@@ -112,10 +112,10 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   let progressAtDragStart = 0;
   let dragProgress = 0;
   let isRevealed = false;
-  const pixelsPerStep = window.matchMedia('(max-width: 767px)').matches ? 46 : 145;
-  const totalDragDistance = pixelsPerStep * 5;
+  const pixelsPerStep = window.matchMedia('(max-width: 767px)').matches ? 58 : 182;
+  const totalDragDistance = pixelsPerStep * 4;
 
-  // Activate the photographic interaction only after all five frames are ready.
+  // Activate the photographic interaction only after all four frames are ready.
   // This prevents broken images or sudden frame jumps while dragging.
   Promise.all(frameUrls.map(url => new Promise((resolve,reject) => {
     const image = new Image();
@@ -132,7 +132,7 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   });
 
   function showStep(step) {
-    const next = Math.max(0, Math.min(4,step));
+    const next = Math.max(0, Math.min(3,step));
     if (next === currentStep) return;
     currentStep = next;
     wrapFrame.src = frameUrls[next];
@@ -150,7 +150,7 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
     startSilverConfetti();
   }
 
-  // Each 145px of travel to the LEFT reveals one more stage. Movement
+  // Each 182px of travel to the LEFT reveals one more stage. Movement
   // right/up/down and individual mouse clicks cannot change the frame.
   // Progress is retained when the pointer is released, so users can pull again.
   function updateDrag(event) {
