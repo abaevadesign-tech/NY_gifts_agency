@@ -93,3 +93,19 @@ document.getElementById('copy-promo').addEventListener('click', async () => {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2300);
 });
+
+
+// Final gift: a one-time, accessible paper-tear reveal for this page visit.
+const unwrapButton = document.getElementById('final-unwrap');
+const finalSection = document.querySelector('.final');
+const surpriseContent = document.getElementById('final-surprise-content');
+if (unwrapButton && finalSection && surpriseContent) {
+  unwrapButton.addEventListener('click', () => {
+    if (finalSection.classList.contains('is-revealed')) return;
+    surpriseContent.removeAttribute('inert');
+    surpriseContent.setAttribute('aria-hidden', 'false');
+    unwrapButton.setAttribute('aria-expanded', 'true');
+    finalSection.classList.add('is-revealed');
+    unwrapButton.blur();
+  });
+}
