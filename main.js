@@ -104,33 +104,35 @@ const confettiCanvas = document.getElementById('final-confetti');
 
 if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   const frameUrls = Array.from({length:5},(_,i)=>`./assets/final-wrap/wrap-${i}.webp`);
-  const loadedFrames = [];
   let framesAvailable = false;
   let currentStep = 0;
   let isDragging = false;
   let dragPointer = null;
   let dragStartX = 0;
+  let dragStartY = 0;
   let dragStartStep = 0;
+  let movedDuringDrag = false;
   let isRevealed = false;
-  const pixelsPerStep = 72;
+  const pixelsPerStep = 56;
+  let suppressClickUntil = 0;
 
-  // The current site remains functional until all five photos have been uploaded.
-  Promise.all(frameUrls.map(url => new Promise((resolve,reject) => {
-    const img = new Image();
-    img.onload = () => { loadedFrames.push(img); resolve(img); };
-    img.onerror = reject;
-    img.src = url;
-  }))).then(() => {
+  // Always show the photographic first frame as soon as it loads.
+  const firstFrame = new Image();
+  firstFrame.onload = () => {
     framesAvailable = true;
-    wrapFrame.src = frameUrls[0];
     finalSection.classList.add('has-frame-assets');
-    unwrapButton.setAttribute('aria-label', 'Тяните ярлык вправо, чтобы открыть упаковку. Пять шагов');
-  }).catch(() => {
-    // Keep the original clickable reveal as a non-breaking fallback.
+    unwrapButton.setAttribute('aria-label', 'Откройте упаковку: потяните за угол в любом направлении или нажмите пять раз');
+  };
+  firstFrame.src = frameUrls[0];
+
+  // Preload subsequent states, so dragging changes the frame without flicker.
+  frameUrls.slice(1).forEach(url => {
+    const frame = new Image();
+    frame.src = url;
   });
 
   function showStep(step) {
-    const n = Math.max(0, Math.min(4,step));
+    const n = Math.max(0, Math.min(4, step));
     if (currentStep === n) return;
     currentStep = n;
     wrapFrame.src = frameUrls[n];
@@ -141,48 +143,66 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
     isRevealed = true;
     isDragging = false;
     surpriseContent.removeAttribute('inert');
-    surpriseContent.setAttribute('aria-hidden','false');
-    unwrapButton.setAttribute('aria-expanded','true');
+    surpriseContent.setAttribute('aria-hidden', 'false');
+    unwrapButton.setAttribute('aria-expanded', 'true');
     finalSection.classList.add('is-revealed');
     unwrapButton.blur();
     startSilverConfetti();
   }
 
-  unwrapButton.addEventListener('pointerdown',event => {
-    if (!framesAvailable || isRevealed) return;
+  function advanceOneStep() {
+    if (isRevealed) return;
+    if (!framesAvailable) {
+      revealGift();
+    } else if (currentStep >= 4) {
+      revealGift();
+    } else {
+      showStep(currentStep + 1);
+    }
+  }
+
+  unwrapButton.addEventListener('pointerdown', event => {
+    if (isRevealed) return;
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     isDragging = true;
     dragPointer = event.pointerId;
     dragStartX = event.clientX;
+    dragStartY = event.clientY;
     dragStartStep = currentStep;
-    unwrapButton.setPointerCapture(event.pointerId);
+    movedDuringDrag = false;
+    // Window-level tracking works even when the pointer leaves the tag.
     event.preventDefault();
   });
 
-  unwrapButton.addEventListener('pointermove',event => {
-    if (!framesAvailable || !isDragging || isRevealed || event.pointerId !== dragPointer) return;
-    const totalDistance = Math.max(0,event.clientX - dragStartX);
-    const step = dragStartStep + Math.floor(totalDistance/pixelsPerStep);
-    if (step >= 5) revealGift();
-    else showStep(step);
-  });
+  window.addEventListener('pointermove', event => {
+    if (!isDragging || isRevealed || event.pointerId !== dragPointer) return;
+    const distance = Math.hypot(event.clientX - dragStartX, event.clientY - dragStartY);
+    if (distance < 8) return;
+    movedDuringDrag = true;
+    const next = dragStartStep + Math.floor(distance / pixelsPerStep);
+    if (next >= 5) {
+      suppressClickUntil = performance.now() + 450;
+      revealGift();
+    } else {
+      showStep(next);
+    }
+    event.preventDefault();
+  }, { passive: false });
 
   function endDrag(event) {
     if (!isDragging || event.pointerId !== dragPointer) return;
     isDragging = false;
     dragPointer = null;
+    if (movedDuringDrag) suppressClickUntil = performance.now() + 450;
   }
-  unwrapButton.addEventListener('pointerup',endDrag);
-  unwrapButton.addEventListener('pointercancel',endDrag);
-  unwrapButton.addEventListener('lostpointercapture',() => {isDragging = false; dragPointer = null;});
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+  window.addEventListener('blur', () => { isDragging = false; dragPointer = null; });
 
-  // Keyboard: Enter / Space advances one frame; five presses open the gift.
-  unwrapButton.addEventListener('click',event => {
-    if (isRevealed) return;
-    if (!framesAvailable) { revealGift(); return; }
-    if (event.detail !== 0) return; // ignore mouse-generated clicks
-    if (currentStep === 4) revealGift();
-    else showStep(currentStep+1);
+  // Clicks also advance one frame. This is useful with a trackpad and for accessibility.
+  unwrapButton.addEventListener('click', () => {
+    if (isRevealed || performance.now() < suppressClickUntil) return;
+    advanceOneStep();
   });
 
   function startSilverConfetti() {
