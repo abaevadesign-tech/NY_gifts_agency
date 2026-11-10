@@ -86,7 +86,7 @@ button{font:inherit;cursor:pointer}
 .final.is-revealed .final__corner{transform:translate(150%,140%) rotate(25deg);opacity:0}
 .final.is-revealed .final__unwrap{pointer-events:none;opacity:0;transition:opacity .17s ease}
 .final.is-revealed .final__wrap{visibility:hidden;pointer-events:none;transition:visibility 0s linear 1.2s}
-.final:not(.is-revealed) .footer{opacity:0;visibility:hidden}
+
 @media(prefers-reduced-motion:reduce){.final__foil,.final__surprise-content,.final__ribbons,.final__corner,.final__unwrap-tab,.final__unwrap-text{transition:none!important}.final.is-revealed .final__wrap{visibility:hidden;transition:none}}
 .final__photo{position:absolute;top:417px;left:53px;width:1810px;height:644px;border-radius:20px;object-fit:cover}
 .final__left,.final__right{position:absolute;top:1100px;margin:0;font-size:23px;line-height:1.2;letter-spacing:-.03em}
@@ -182,3 +182,18 @@ button{font:inherit;cursor:pointer}
   transform:translateX(-12px);
 }
 .final.has-frame-assets.is-revealed .final__drag-guide{display:none}
+
+/* Invisible interaction zone; the physical foil corner remains the only visible affordance. */
+.final.has-frame-assets .final__unwrap,
+.final.has-frame-assets .final__unwrap:hover,
+.final.has-frame-assets .final__unwrap:active {
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  outline:none;
+  opacity:1;
+  -webkit-tap-highlight-color:transparent;
+}
+.final.has-frame-assets .final__unwrap:focus-visible{outline:3px solid rgba(255,255,255,.85);outline-offset:-8px}
+.final .footer{visibility:visible;opacity:1;z-index:10}
+.final__confetti{z-index:9}
