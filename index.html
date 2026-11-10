@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f5">
+  <meta name="description" content="Новогодние предсказания Тутковбудков — погадаем на кофейной гуще.">
+  <title>Погадаем? — Тутковбудков × 2027</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./main.js" defer></script>
+</head>
+<body>
+  <main class="canvas" id="top">
+    <section class="hero" aria-label="Добро пожаловать">
+      <img class="hero__background asset" src="./assets/hero-background.png" alt="Праздничная сцена с ёлками и козой" data-source="hero-background.png">
+      <h1 class="hero__headline script">добро пожаловать</h1>
+      <div class="hero__foreground" aria-hidden="true"></div>
+      <p class="hero__intro">В мире опять происходит не пойми что. Новости напоминают страшилки, планы меняются быстрее, чем мы успеваем их строить, а предсказать даже следующую неделю становится непросто.<br><br>Поэтому мы решили бросить попытки разобраться в будущем и довериться кофейной гуще. В конце концов, чем она хуже остальных прогнозов?</p>
+    </section>
+
+    <section class="greeting" aria-label="С Новым годом">
+      <div class="greeting__photo photo-stack">
+        <img class="asset" src="./assets/party-photo-1.png" alt="Новогодняя вечеринка" loading="lazy">
+        <img class="asset" src="./assets/party-photo-2.png" alt="" loading="lazy" aria-hidden="true">
+        <img class="asset" src="./assets/party-photo-3.png" alt="" loading="lazy" aria-hidden="true">
+      </div>
+      <p class="greeting__kicker">Но, прежде —</p>
+      <img class="greeting__title asset" src="./assets/new-year-title.png" alt="С Новым годом!" loading="lazy">
+      <p class="greeting__copy">Пусть в 2027-м будет больше классных идей, неожиданных открытий и поводов для радости. И поменьше поводов сходить с ума. Хотя без маленьких безумств тоже никуда!</p>
+    </section>
+
+    <section class="guide" aria-labelledby="guide-title">
+      <h2 class="guide__eyebrow" id="guide-title">Ну а теперь — погадаем!</h2>
+      <p class="guide__copy">Заваривайте кофе по нашей инструкции, а когда допьете,<br> попробуйте разглядеть в чашке своё будущее.</p>
+      <ol class="steps">
+        <li class="step step--1">
+          <span class="step__number script" aria-hidden="true">(1)</span>
+          <img class="step__picture asset" src="./assets/step-spoon.png" alt="Ложка с молотым кофе" loading="lazy">
+          <p class="step__text">Положите в чашку объемом 250 мл две чайные ложки кофе с горкой.</p>
+        </li>
+        <li class="step step--2">
+          <span class="step__number script" aria-hidden="true">(2)</span>
+          <img class="step__picture asset" src="./assets/step-kettle.png" alt="Чайник" loading="lazy">
+          <p class="step__text">Нагрейте воду до 93–95 °C. До кипения доводить не нужно.</p>
+        </li>
+        <li class="step step--3">
+          <span class="step__number script" aria-hidden="true">(3)</span>
+          <img class="step__picture asset" src="./assets/step-watch.png" alt="Наручные часы" loading="lazy">
+          <p class="step__text">Залейте кофе водой и не перемешивайте. Подождите две минуты.<br><br>Теперь перемешайте и дайте частицам кофе осесть на дно.</p>
+        </li>
+        <li class="step step--4">
+          <span class="step__number script" aria-hidden="true">(4)</span>
+          <img class="step__picture asset" src="./assets/step-milk.png" alt="Пакет молока" loading="lazy">
+          <p class="step__text">Если любите кофе с молоком, сливками или сиропом — добавьте их в самом конце.<br><br>Наслаждайтесь. И не спешите: будущее подождёт.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="prophecies" aria-labelledby="prophecies-title">
+      <h2 class="prophecies__headline script" id="prophecies-title">Теперь, когда в чашке<br><span>появился</span><br><span>загадочный рисунок...</span></h2>
+      <p class="prophecies__description">Самое время узнать, что он означает. Присмотритесь к кофейной гуще,<br> найдите что-то похожее среди наших символов и прочитайте предсказание.</p>
+      <div class="prediction-grid" id="prediction-grid"></div>
+    </section>
+
+    <section class="final" aria-labelledby="final-title">
+      <h2 class="final__headline script" id="final-title">А вот что мы можем<br><span>предсказать точно!</span></h2>
+      <img class="final__photo asset" src="./assets/final-promo.png" alt="Дед Мороз и праздничная скидка 20 процентов" loading="lazy">
+      <p class="final__left">Что бы ни происходило в мире, мы будем рады продолжать придумывать, творить и чудить вместе с вами.<br>И чтобы хоть что-то в будущем было предсказуемо приятным,</p>
+      <p class="final__right">дарим скидку 20% на прямой заказ любой услуги ТУТКОВБУДКОВ по промокоду <button class="promo" id="copy-promo" aria-label="Скопировать промокод ТБНГ27">ТБНГ27 <span class="promo__icon" aria-hidden="true">↗</span></button> в течение всего года*. С Новым годом! Пусть мир чудит, а мы почудим в ответ!</p>
+      <footer class="footer" aria-label="Подвал"><div class="footer__snow" aria-hidden="true">* &nbsp;&nbsp; * &nbsp;&nbsp;&nbsp; *</div><div class="footer__year">ТБН27</div></footer>
+    </section>
+  </main>
+
+  <div class="dialog" id="prediction-dialog" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialog-title">
+    <div class="dialog__shade" data-close-dialog></div>
+    <div class="dialog__panel" role="document">
+      <button class="dialog__close" id="dialog-close" aria-label="Закрыть предсказание">×</button>
+      <div class="dialog__media"><img id="dialog-image" alt=""></div>
+      <div class="dialog__content">
+        <span class="dialog__eyebrow">ВАШЕ ПРЕДСКАЗАНИЕ НА 2027</span>
+        <h3 id="dialog-title"></h3>
+        <p id="dialog-body"></p>
+        <button class="dialog__next" id="dialog-next">Следующее предсказание <span aria-hidden="true">↗</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
