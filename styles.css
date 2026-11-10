@@ -288,3 +288,15 @@ button{font:inherit;cursor:pointer}
   .final.is-revealed .final__surprise-content{display:flex;opacity:1;visibility:visible}
   .final .footer{order:3}
 }
+
+/* Last-resort mobile overflow guard, independent of section positioning. */
+@media screen and (max-width:767px){
+  :root{overflow-x:hidden}
+  html,body{min-width:0!important;max-width:100%;overflow-x:hidden}
+  body>.canvas{width:100%!important;min-width:0!important;height:auto!important}
+  .hero,.greeting,.guide,.prophecies,.final{width:100%!important;max-width:100%;min-width:0}
+  .hero__headline{max-width:90vw;overflow-wrap:break-word}
+  .greeting__title{max-width:100%}
+  .prophecies__headline,.final__headline{overflow-wrap:anywhere}
+  .prediction-grid{max-width:100%}
+}
