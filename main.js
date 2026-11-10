@@ -95,17 +95,135 @@ document.getElementById('copy-promo').addEventListener('click', async () => {
 });
 
 
-// Final gift: a one-time, accessible paper-tear reveal for this page visit.
+// Final gift: five continuous photo frames controlled by dragging, then a subtle snowfall of foil.
 const unwrapButton = document.getElementById('final-unwrap');
 const finalSection = document.querySelector('.final');
 const surpriseContent = document.getElementById('final-surprise-content');
-if (unwrapButton && finalSection && surpriseContent) {
-  unwrapButton.addEventListener('click', () => {
-    if (finalSection.classList.contains('is-revealed')) return;
+const wrapFrame = document.getElementById('final-wrap-frame');
+const confettiCanvas = document.getElementById('final-confetti');
+
+if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
+  const frameUrls = Array.from({length:5},(_,i)=>`./assets/final-wrap/wrap-${i}.webp`);
+  const loadedFrames = [];
+  let framesAvailable = false;
+  let currentStep = 0;
+  let isDragging = false;
+  let dragPointer = null;
+  let dragStartX = 0;
+  let dragStartStep = 0;
+  let isRevealed = false;
+  const pixelsPerStep = 72;
+
+  // The current site remains functional until all five photos have been uploaded.
+  Promise.all(frameUrls.map(url => new Promise((resolve,reject) => {
+    const img = new Image();
+    img.onload = () => { loadedFrames.push(img); resolve(img); };
+    img.onerror = reject;
+    img.src = url;
+  }))).then(() => {
+    framesAvailable = true;
+    wrapFrame.src = frameUrls[0];
+    finalSection.classList.add('has-frame-assets');
+    unwrapButton.setAttribute('aria-label', 'Тяните ярлык вправо, чтобы открыть упаковку. Пять шагов');
+  }).catch(() => {
+    // Keep the original clickable reveal as a non-breaking fallback.
+  });
+
+  function showStep(step) {
+    const n = Math.max(0, Math.min(4,step));
+    if (currentStep === n) return;
+    currentStep = n;
+    wrapFrame.src = frameUrls[n];
+  }
+
+  function revealGift() {
+    if (isRevealed) return;
+    isRevealed = true;
+    isDragging = false;
     surpriseContent.removeAttribute('inert');
-    surpriseContent.setAttribute('aria-hidden', 'false');
-    unwrapButton.setAttribute('aria-expanded', 'true');
+    surpriseContent.setAttribute('aria-hidden','false');
+    unwrapButton.setAttribute('aria-expanded','true');
     finalSection.classList.add('is-revealed');
     unwrapButton.blur();
+    startSilverConfetti();
+  }
+
+  unwrapButton.addEventListener('pointerdown',event => {
+    if (!framesAvailable || isRevealed) return;
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    isDragging = true;
+    dragPointer = event.pointerId;
+    dragStartX = event.clientX;
+    dragStartStep = currentStep;
+    unwrapButton.setPointerCapture(event.pointerId);
+    event.preventDefault();
   });
+
+  unwrapButton.addEventListener('pointermove',event => {
+    if (!framesAvailable || !isDragging || isRevealed || event.pointerId !== dragPointer) return;
+    const totalDistance = Math.max(0,event.clientX - dragStartX);
+    const step = dragStartStep + Math.floor(totalDistance/pixelsPerStep);
+    if (step >= 5) revealGift();
+    else showStep(step);
+  });
+
+  function endDrag(event) {
+    if (!isDragging || event.pointerId !== dragPointer) return;
+    isDragging = false;
+    dragPointer = null;
+  }
+  unwrapButton.addEventListener('pointerup',endDrag);
+  unwrapButton.addEventListener('pointercancel',endDrag);
+  unwrapButton.addEventListener('lostpointercapture',() => {isDragging = false; dragPointer = null;});
+
+  // Keyboard: Enter / Space advances one frame; five presses open the gift.
+  unwrapButton.addEventListener('click',event => {
+    if (isRevealed) return;
+    if (!framesAvailable) { revealGift(); return; }
+    if (event.detail !== 0) return; // ignore mouse-generated clicks
+    if (currentStep === 4) revealGift();
+    else showStep(currentStep+1);
+  });
+
+  function startSilverConfetti() {
+    if (!confettiCanvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const context = confettiCanvas.getContext('2d');
+    if (!context) return;
+    const width = 1920, height = 1360;
+    const ratio = Math.min(window.devicePixelRatio || 1,2);
+    confettiCanvas.width = width*ratio;
+    confettiCanvas.height = height*ratio;
+    context.setTransform(ratio,0,0,ratio,0,0);
+    const particles = Array.from({length:39},() => ({
+      x:Math.random()*width,
+      y:Math.random()*height-height,
+      w:1.5+Math.random()*3.5,
+      h:1+Math.random()*2.6,
+      vy:0.38+Math.random()*0.85,
+      vx:-.22+Math.random()*.44,
+      phase:Math.random()*Math.PI*2,
+      light:.25+Math.random()*.45
+    }));
+    const started=performance.now();
+    let previous=started;
+    function render(now) {
+      const elapsed=now-started;
+      const dt=Math.min((now-previous)/16.67,2.5);
+      previous=now;
+      context.clearRect(0,0,width,height);
+      for (const p of particles) {
+        p.y+=p.vy*dt;
+        p.x+=p.vx*dt + Math.sin(now/1500+p.phase)*.15;
+        if(p.y>height+10) {p.y=-10;p.x=Math.random()*width;}
+        const glow=.35+.65*Math.abs(Math.sin(now/720+p.phase));
+        context.globalAlpha=p.light*glow*Math.min(1,(18000-elapsed)/1600);
+        context.fillStyle=glow>.68?'#f7f8fb':'#bfc3ca';
+        context.fillRect(p.x,p.y,p.w,p.h);
+      }
+      context.globalAlpha=1;
+      if(elapsed<18000) requestAnimationFrame(render);
+      else context.clearRect(0,0,width,height);
+    }
+    requestAnimationFrame(render);
+  }
 }
