@@ -111,3 +111,23 @@ button{font:inherit;cursor:pointer}
 .dialog__next span{margin-left:20px}
 .toast{position:fixed;z-index:120;left:50%;bottom:35px;transform:translate(-50%,20px);border-radius:4px;padding:15px 24px;background:#262626;color:white;font-size:17px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}.toast.is-visible{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+
+/* Photo-accurate draggable reveal frames. Fallback remains until the images are uploaded. */
+.final__frame{position:absolute;inset:0;width:100%;height:100%;display:none;object-fit:fill;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.final.has-frame-assets .final__frame{display:block}
+.final.has-frame-assets .final__foil,
+.final.has-frame-assets .final__ribbons,
+.final.has-frame-assets .final__corner,
+.final.has-frame-assets .final__unwrap-tab,
+.final.has-frame-assets .final__unwrap-text{display:none}
+.final.has-frame-assets .final__wrap{background:transparent}
+.final.has-frame-assets .final__unwrap{touch-action:none;cursor:grab}
+.final.has-frame-assets .final__unwrap:active{cursor:grabbing}
+.final.has-frame-assets .final__surprise-content{opacity:1;visibility:visible;transition:none}
+.final.has-frame-assets:not(.is-revealed) .final__left,
+.final.has-frame-assets:not(.is-revealed) .final__right{opacity:0;visibility:hidden;pointer-events:none}
+.final.has-frame-assets.is-revealed .final__left,
+.final.has-frame-assets.is-revealed .final__right{opacity:1;visibility:visible;transition:opacity .7s ease}
+.final.has-frame-assets.is-revealed .final__wrap{visibility:hidden;transition:visibility 0s linear .18s}
+.final__confetti{position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none}
