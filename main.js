@@ -213,60 +213,71 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
     if (!confettiCanvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const context = confettiCanvas.getContext('2d');
     if (!context) return;
-    const width = 1920;
-    const height = 1360;
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    confettiCanvas.width = width * ratio;
-    confettiCanvas.height = height * ratio;
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-    // Start within the visible gift area rather than above the canvas;
-    // the original particles took too long to enter the viewport.
-    const particles = Array.from({ length: 58 }, () => ({
-      x: 55 + Math.random() * 1810,
-      y: 270 + Math.random() * 700,
-      w: 1.5 + Math.random() * 3.5,
-      h: 1.5 + Math.random() * 4,
-      vy: .26 + Math.random() * .62,
-      sway: .17 + Math.random() * .46,
-      phase: Math.random() * Math.PI * 2,
-      alpha: .36 + Math.random() * .40,
-      rotation: Math.random() * Math.PI,
-      turn: .008 + Math.random() * .018
-    }));
+    let width = 0;
+    let height = 0;
+    let previous = performance.now();
+    let particles = [];
 
-    const started = performance.now();
-    let previous = started;
+    function makeParticle(startAnywhere = false) {
+      return {
+        x: Math.random() * width,
+        y: startAnywhere ? Math.random() * height : -12 - Math.random() * height * .55,
+        w: 2.5 + Math.random() * 3.7,
+        h: 2 + Math.random() * 4.4,
+        vy: .38 + Math.random() * .85,
+        sway: .22 + Math.random() * .45,
+        phase: Math.random() * Math.PI * 2,
+        alpha: .38 + Math.random() * .4,
+        rotation: Math.random() * Math.PI,
+        turn: .008 + Math.random() * .022
+      };
+    }
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      confettiCanvas.width = Math.round(width * ratio);
+      confettiCanvas.height = Math.round(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      const count = Math.max(26, Math.min(72, Math.round(width * height / 26000)));
+      particles = Array.from({ length: count }, () => makeParticle(true));
+    }
+
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
     function render(now) {
-      const elapsed = now - started;
       const dt = Math.min((now - previous) / 16.67, 2.5);
       previous = now;
+      if (document.hidden) {
+        requestAnimationFrame(render);
+        return;
+      }
       context.clearRect(0, 0, width, height);
-      const fade = Math.min(1, elapsed / 800) * Math.min(1, (26000 - elapsed) / 2300);
       for (const p of particles) {
         p.y += p.vy * dt;
         p.phase += p.turn * dt;
         p.x += Math.sin(p.phase) * p.sway * dt;
-        if (p.y > height - 118) {
-          p.y = 360 - Math.random() * 130;
-          p.x = 55 + Math.random() * 1810;
-        }
-        const shimmer = .48 + .52 * Math.abs(Math.sin(p.phase * 2.4));
+        if (p.y > height + 12) Object.assign(p, makeParticle());
+        if (p.x < -12) p.x = width + 10;
+        else if (p.x > width + 12) p.x = -10;
+        const shimmer = .46 + .54 * Math.abs(Math.sin(p.phase * 2.3));
         context.save();
         context.translate(p.x, p.y);
         context.rotate(p.rotation + Math.sin(p.phase) * .6);
-        context.globalAlpha = p.alpha * shimmer * Math.max(0, fade);
-        context.fillStyle = shimmer > .76 ? '#ffffff' : '#b9bec8';
+        context.globalAlpha = p.alpha * shimmer;
+        context.fillStyle = shimmer > .76 ? '#f8f9fc' : '#b4bac5';
         context.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        // Occasional miniature light reflections rather than large starbursts.
-        if (shimmer > .91 && p.w > 3.6) {
-          context.fillRect(-.4, -p.h * 1.45, .8, p.h * 2.9);
+        if (shimmer > .92 && p.w > 4) {
+          context.fillRect(-.45, -p.h * 1.2, .9, p.h * 2.4);
         }
         context.restore();
       }
-      if (elapsed < 26000) requestAnimationFrame(render);
-      else context.clearRect(0, 0, width, height);
+      requestAnimationFrame(render);
     }
+
     requestAnimationFrame(render);
   }
 }
