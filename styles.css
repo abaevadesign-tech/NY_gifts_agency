@@ -263,8 +263,9 @@ button{font:inherit;cursor:pointer}
   .dialog__content h3{margin:18px 0 15px;font-size:31px;line-height:1.03}
   .dialog__content p{font-size:16px;line-height:1.38;max-width:none}
   .dialog__close{top:8px;right:12px;width:40px;height:40px;font-size:33px;background:rgba(245,245,245,.95);border-radius:100%}
-  .dialog__next{margin-top:20px;padding:13px 0 4px;font-size:15px}
-  .dialog__next span{margin-left:8px}
+  .dialog__nav{gap:18px;margin-top:20px;padding-top:15px}
+  .dialog__prev,.dialog__next{margin:0;padding:8px 0 4px;font-size:13px;white-space:nowrap}
+  .dialog__prev span,.dialog__next span{margin:0 5px}
   .toast{width:max-content;max-width:calc(100vw - 24px);font-size:14px;padding:12px 17px;text-align:center}
 }
 @media(min-width:540px) and (max-width:767px){
@@ -327,4 +328,28 @@ button{font:inherit;cursor:pointer}
   .hero__headline{left:5%;right:5%;width:90%;max-width:none}
   .hero__headline-first{position:relative;left:auto;right:0;margin-left:auto;margin-right:0;text-align:right;max-width:100%;}
   .hero__headline-second{position:relative;left:0;right:auto;margin-left:0;margin-right:auto;text-align:left;max-width:100%;}
+}
+
+/* Art-direction refinements: brutalist cards, balanced copy and consistent type. */
+.hero__intro{top:350px;width:370px;text-align:left}
+.step--2 .step__picture{width:230px;height:230px;top:80px}
+.prediction__trigger{border-radius:0;border:1px solid var(--ink);overflow:hidden}
+.prediction__image{transition:none}
+.prediction__trigger:hover .prediction__image,.prediction__trigger:focus-visible .prediction__image{transform:none}
+.prediction__trigger:hover,.prediction__trigger:focus-visible{outline:4px solid var(--ink);outline-offset:-4px}
+.prediction__hint{display:none!important}
+.prediction__title{margin:16px 0 0;font-family:'Formular','Arial',sans-serif;font-size:32px;line-height:1.1;font-weight:500;letter-spacing:.015em;text-transform:uppercase}
+.footer__snow{display:none}
+.footer__year{font-family:'Formular','Arial',sans-serif;font-weight:700;font-size:42px;letter-spacing:-.035em}
+.dialog__content p{letter-spacing:-.025em;font-kerning:normal;word-spacing:normal;text-align:left}
+.dialog__nav{display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;margin-top:auto;padding-top:32px;border-top:1px solid var(--ink)}
+.dialog__prev,.dialog__next{display:inline-flex;align-items:center;gap:10px;margin:0;padding:10px 0 4px;border:0;border-bottom:1px solid var(--ink);background:transparent;font-size:17px;line-height:1.2;letter-spacing:-.02em}
+.dialog__prev:hover,.dialog__next:hover{opacity:.62}
+.dialog__prev span,.dialog__next span{font-size:22px;line-height:1}
+@media (max-width:767px){
+  .hero__intro{top:auto;width:auto;text-align:left}
+  .step--2 .step__picture{width:135px;height:135px;top:15px}
+  .prediction__trigger{border-radius:0}
+  .prediction__title{margin:11px 0 0;font-size:19px;line-height:1.15}
+  .dialog__content p{letter-spacing:-.02em}
 }
