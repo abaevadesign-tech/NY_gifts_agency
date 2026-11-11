@@ -353,3 +353,10 @@ button{font:inherit;cursor:pointer}
   .prediction__title{margin:11px 0 0;font-size:19px;line-height:1.15}
   .dialog__content p{letter-spacing:-.02em}
 }
+
+/* Keep modal navigation compact and footer wordmark balanced on mobile. */
+@media (max-width:767px){
+  .dialog__nav{gap:12px;margin-top:20px;padding-top:18px}
+  .dialog__prev,.dialog__next{font-size:14px;padding:8px 0 4px}
+  .footer__year{font-size:32px;right:18px;top:18px}
+}
