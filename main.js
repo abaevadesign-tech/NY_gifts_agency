@@ -70,8 +70,8 @@ document.getElementById('dialog-next').addEventListener('click', () => openPredi
 document.addEventListener('keydown', (event) => {
   if (!dialog.classList.contains('is-open')) return;
   if (event.key === 'Escape') closePrediction();
-  if (event.key === 'ArrowRight') openPrediction((currentIndex + 1) % predictions.length);
-  if (event.key === 'ArrowLeft') openPrediction((currentIndex + predictions.length - 1) % predictions.length);
+  if (event.key === 'ArrowRight') openPrediction((currentIndex + 1) % predictions.length, null, false);
+  if (event.key === 'ArrowLeft') openPrediction((currentIndex + predictions.length - 1) % predictions.length, null, false);
   if (event.key === 'Tab') {
     const controls = dialog.querySelectorAll('button');
     const first = controls[0];
@@ -342,13 +342,13 @@ function fixRussianLineBreaks(root) {
   while (walker.nextNode()) nodes.push(walker.currentNode);
   for (const node of nodes) {
     let text = node.nodeValue;
-    text = text.replace(/(^|[\\s\\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \\t]+)(?=[А-Яа-яЁё0-9«„])/gu,
+    text = text.replace(/(^|[\s\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \t]+)(?=[А-Яа-яЁё0-9«„])/gu,
       (match, prefix, word) => russianNonBreakingWords.has(word.toLowerCase())
-        ? prefix + word + '\\u00a0'
+        ? prefix + word + '\u00a0'
         : match
     );
-    text = text.replace(/([А-Яа-яЁё]+)[ \\t]+(ли|же|бы|б)(?=$|[\\s.,!?;:])/giu, '$1\\u00a0$2');
-    text = text.replace(/(\\d+(?:[.,]\\d+)?(?:[–—-]\\d+(?:[.,]\\d+)?)?)[ \\t]+(?=(?:°[CcСс]|мл\\b|мин(?:\\.|ут[а-я]*)?\\b|сек(?:\\.|унд[а-я]*)?\\b|кг\\b|г\\b|см\\b|мм\\b))/giu, '$1\\u00a0');
+    text = text.replace(/([А-Яа-яЁё]+)[ \t]+(ли|же|бы|б)(?=$|[\s.,!?;:])/giu, '$1\u00a0$2');
+    text = text.replace(/(\d+(?:[.,]\d+)?(?:[–—-]\d+(?:[.,]\d+)?)?)[ \t]+(?=(?:°[CcСс]|мл\b|мин(?:\.|ут[а-я]*)?\b|сек(?:\.|унд[а-я]*)?\b|кг\b|г\b|см\b|мм\b))/giu, '$1\u00a0');
     node.nodeValue = text;
   }
 }
