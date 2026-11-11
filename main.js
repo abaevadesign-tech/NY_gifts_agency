@@ -32,15 +32,15 @@ for (let i = 0; i < predictions.length; i++) {
   article.innerHTML = `
     <button class="prediction__trigger" type="button" aria-label="Открыть предсказание «${item.title}»">
       <img class="asset prediction__image" src="./assets/${item.image}" alt="Символ ${item.title.toLowerCase()}" loading="lazy">
-      <span class="prediction__hint" aria-hidden="true">Открыть предсказание ↗</span>
     </button>
+    <h3 class="prediction__title">${item.title}</h3>
   `;
   const button = article.querySelector('button');
   button.addEventListener('click', () => openPrediction(i, button));
   grid.appendChild(article);
 }
 
-function openPrediction(index, clickedButton) {
+function openPrediction(index, clickedButton, shouldFocus = true) {
   currentIndex = index;
   if (clickedButton) trigger = clickedButton;
   const item = predictions[index];
@@ -52,7 +52,7 @@ function openPrediction(index, clickedButton) {
   dialog.setAttribute('aria-hidden', 'false');
   dialog.classList.add('is-open');
   document.body.classList.add('modal-open');
-  closeButton.focus();
+  if (shouldFocus) closeButton.focus();
 }
 
 function closePrediction() {
@@ -65,7 +65,8 @@ function closePrediction() {
 
 closeButton.addEventListener('click', closePrediction);
 dialog.querySelector('[data-close-dialog]').addEventListener('click', closePrediction);
-document.getElementById('dialog-next').addEventListener('click', () => openPrediction((currentIndex + 1) % predictions.length));
+document.getElementById('dialog-prev').addEventListener('click', () => openPrediction((currentIndex - 1 + predictions.length) % predictions.length, null, false));
+document.getElementById('dialog-next').addEventListener('click', () => openPrediction((currentIndex + 1) % predictions.length, null, false));
 document.addEventListener('keydown', (event) => {
   if (!dialog.classList.contains('is-open')) return;
   if (event.key === 'Escape') closePrediction();
@@ -210,28 +211,27 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
   });
 
 
+
   function startSilverConfetti() {
     if (!confettiCanvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const context = confettiCanvas.getContext('2d');
     if (!context) return;
-
     let width = 0;
     let height = 0;
     let previous = performance.now();
     let particles = [];
 
-    function makeParticle(startAnywhere = false) {
+    function makeParticle(randomY = false) {
       return {
         x: Math.random() * width,
-        y: startAnywhere ? Math.random() * height : -12 - Math.random() * height * .55,
-        w: 2.5 + Math.random() * 3.7,
-        h: 2 + Math.random() * 4.4,
-        vy: .38 + Math.random() * .85,
-        sway: .22 + Math.random() * .45,
+        y: randomY ? Math.random() * height : -14 - Math.random() * height * .5,
+        size: 2.2 + Math.random() * 2.3,
+        speed: .38 + Math.random() * .78,
+        drift: .2 + Math.random() * .5,
         phase: Math.random() * Math.PI * 2,
-        alpha: .38 + Math.random() * .4,
         rotation: Math.random() * Math.PI,
-        turn: .008 + Math.random() * .022
+        spin: -.012 + Math.random() * .024,
+        color: Math.random() > .48 ? '#f4f5f7' : '#c4cad2'
       };
     }
 
@@ -242,13 +242,35 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
       confettiCanvas.width = Math.round(width * ratio);
       confettiCanvas.height = Math.round(height * ratio);
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      const count = Math.max(26, Math.min(72, Math.round(width * height / 26000)));
+      const count = Math.max(28, Math.min(58, Math.round(width * height / 31000)));
       particles = Array.from({ length: count }, () => makeParticle(true));
+    }
+
+    function drawSnowflake(p) {
+      context.save();
+      context.translate(p.x, p.y);
+      context.rotate(p.rotation);
+      context.strokeStyle = p.color;
+      context.lineWidth = Math.max(.8, p.size * .27);
+      context.lineCap = 'square';
+      context.beginPath();
+      for (let arm = 0; arm < 6; arm++) {
+        context.save();
+        context.rotate(Math.PI * arm / 3);
+        context.moveTo(0, 0);
+        context.lineTo(0, -p.size * 2.1);
+        context.moveTo(0, -p.size * 1.05);
+        context.lineTo(-p.size * .62, -p.size * 1.58);
+        context.moveTo(0, -p.size * 1.05);
+        context.lineTo(p.size * .62, -p.size * 1.58);
+        context.restore();
+      }
+      context.stroke();
+      context.restore();
     }
 
     resize();
     window.addEventListener('resize', resize, { passive: true });
-
     function render(now) {
       const dt = Math.min((now - previous) / 16.67, 2.5);
       previous = now;
@@ -258,31 +280,20 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
       }
       context.clearRect(0, 0, width, height);
       for (const p of particles) {
-        p.y += p.vy * dt;
-        p.phase += p.turn * dt;
-        p.x += Math.sin(p.phase) * p.sway * dt;
-        if (p.y > height + 12) Object.assign(p, makeParticle());
+        p.y += p.speed * dt;
+        p.phase += .012 * dt;
+        p.rotation += p.spin * dt;
+        p.x += Math.sin(p.phase) * p.drift * dt;
+        if (p.y > height + 14) Object.assign(p, makeParticle());
         if (p.x < -12) p.x = width + 10;
         else if (p.x > width + 12) p.x = -10;
-        const shimmer = .46 + .54 * Math.abs(Math.sin(p.phase * 2.3));
-        context.save();
-        context.translate(p.x, p.y);
-        context.rotate(p.rotation + Math.sin(p.phase) * .6);
-        context.globalAlpha = p.alpha * shimmer;
-        context.fillStyle = shimmer > .76 ? '#f8f9fc' : '#b4bac5';
-        context.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        if (shimmer > .92 && p.w > 4) {
-          context.fillRect(-.45, -p.h * 1.2, .9, p.h * 2.4);
-        }
-        context.restore();
+        drawSnowflake(p);
       }
       requestAnimationFrame(render);
     }
-
     requestAnimationFrame(render);
   }
 }
-
 
 // Scale the entire 1920px desktop composition uniformly on narrower desktops.
 // CSS zoom scales both visual dimensions and the document's scroll height.
@@ -308,11 +319,12 @@ if (unwrapButton && finalSection && surpriseContent && wrapFrame) {
  * NBSP survives all responsive widths; unlike manual line breaks it does
  * not force a particular line layout.
  */
+
 const russianNonBreakingWords = new Set([
   'а','без','в','во','да','для','до','за','и','из','изо','или',
   'к','ко','на','над','не','ни','но','о','об','обо','от','ото',
   'по','под','при','про','с','со','у','через','между','перед',
-  'после','безо','оттого','ли','же','бы','б','ведь'
+  'после','безо','оттого','ведь'
 ]);
 
 function fixRussianLineBreaks(root) {
@@ -329,11 +341,15 @@ function fixRussianLineBreaks(root) {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   for (const node of nodes) {
-    node.nodeValue = node.nodeValue.replace(/(^|[\s\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \t]+)(?=[А-Яа-яЁё0-9«„])/gu,
+    let text = node.nodeValue;
+    text = text.replace(/(^|[\\s\\u00a0«„(—–])([А-Яа-яЁё]{1,7})([ \\t]+)(?=[А-Яа-яЁё0-9«„])/gu,
       (match, prefix, word) => russianNonBreakingWords.has(word.toLowerCase())
-        ? prefix + word + '\u00a0'
+        ? prefix + word + '\\u00a0'
         : match
     );
+    text = text.replace(/([А-Яа-яЁё]+)[ \\t]+(ли|же|бы|б)(?=$|[\\s.,!?;:])/giu, '$1\\u00a0$2');
+    text = text.replace(/(\\d+(?:[.,]\\d+)?(?:[–—-]\\d+(?:[.,]\\d+)?)?)[ \\t]+(?=(?:°[CcСс]|мл\\b|мин(?:\\.|ут[а-я]*)?\\b|сек(?:\\.|унд[а-я]*)?\\b|кг\\b|г\\b|см\\b|мм\\b))/giu, '$1\\u00a0');
+    node.nodeValue = text;
   }
 }
 
