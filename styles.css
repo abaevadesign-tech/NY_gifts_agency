@@ -360,3 +360,9 @@ button{font:inherit;cursor:pointer}
   .dialog__prev,.dialog__next{font-size:14px;padding:8px 0 4px}
   .footer__year{font-size:32px;right:18px;top:18px}
 }
+
+/* Supplied vector wordmark in the footer. */
+.footer__logo{position:absolute;right:40px;top:32px;display:block;width:175px;height:44px;object-fit:contain}
+@media (max-width:767px){
+  .footer__logo{right:18px;top:19px;width:131px;height:33px}
+}
